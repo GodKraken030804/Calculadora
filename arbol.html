@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Árbol de Expresión</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        #network {
+            width: 800px;
+            height: 600px;
+            border: 1px solid lightgray;
+        }
+    </style>
+</head>
+<body>
+
+<div id="network"></div>
+
+<script>
+class Node {
+    constructor(value) {
+        this.id = Math.random().toString(36).substr(2, 9); // Genera un ID único
+        this.label = value;
+    }
+}
+
+function createExpressionTree(tokens) {
+    let nodes = [];
+    let edges = [];
+
+    tokens.forEach((token, index) => {
+        nodes.push(new Node(token + "_" + index)); // Añade un identificador único a cada token para evitar duplicados
+    });
+
+    // Asignación simplificada: conecta cada nodo operador con sus operandos
+    for (let i = 1; i < tokens.length; i += 2) {
+        let operator = nodes[i];
+        let leftOperand = nodes[i - 1];
+        let rightOperand = nodes[i + 1];
+
+        edges.push({from: operator.id, to: leftOperand.id});
+        edges.push({from: operator.id, to: rightOperand.id});
+    }
+
+    return { nodes, edges };
+}
+
+let tokens = ["2", "+", "3", "*", "4", "+", "5"];
+let { nodes, edges } = createExpressionTree(tokens);
+
+// Crear un DataSet con los nodos y las aristas
+let nodesDataSet = new vis.DataSet(nodes);
+let edgesDataSet = new vis.DataSet(edges);
+
+// Crear una red
+let container = document.getElementById('network');
+let data = {
+    nodes: nodesDataSet,
+    edges: edgesDataSet
+};
+let options = {};
+let network = new vis.Network(container, data, options);
+</script>
+
+</body>
+</html>
